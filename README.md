@@ -5,7 +5,7 @@ whois query and parse tools, support `domain` and `ipv4` and `ipv6`.
 # install
 
 ```shell
-go get github.com/yanmengfei/whois
+go get github.com/yanmengfei/whois@1.0.0
 ```
 
 # example
@@ -21,12 +21,11 @@ import (
 )
 
 func main() {
-	// query ip whois
-	var ipKey = "114.114.114.114"
-	if ipWhois, err := ip.Query(&whois.QueryOptions{Key: ipKey}); err != nil {
+	// online query ip whois
+	ipWhois, err := ip.Query(&whois.QueryOptions{Key: "114.114.114.114"})
+	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-		fmt.Println("=== Query ip whois for", ipKey)
 		fmt.Println("Inetnum:", ipWhois.Inetnum)
 		fmt.Println("Server:", ipWhois.Server)
 		fmt.Println("Source:", ipWhois.Source)
@@ -34,10 +33,13 @@ func main() {
 		fmt.Println("Created:", ipWhois.Created)
 		fmt.Println("Updated:", ipWhois.Updated)
 	}
+	ip.PutWhoisInfo(ipWhois)
+	fmt.Println("==================================")
 
-	// query domain whois
+	// online query domain whois
 	var domainKey = "itmeng.top"
-	if domainWhois, err := domain.Query(&whois.QueryOptions{Key: domainKey}); err != nil {
+	domainWhois, err := domain.Query(&whois.QueryOptions{Key: domainKey})
+	if err != nil {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("=== Query domain whois for", domainKey)
@@ -52,6 +54,6 @@ func main() {
 		fmt.Println("Registrant:", domainWhois.Registrant)
 		fmt.Println("Registrar:", domainWhois.Registrar)
 	}
-
+	domain.PutWhoisInfo(domainWhois)
 }
 ```
