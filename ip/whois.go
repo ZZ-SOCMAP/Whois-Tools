@@ -3,9 +3,10 @@ package ip
 import (
 	"bufio"
 	"errors"
-	"github.com/yanmengfei/whois"
 	"regexp"
 	"strings"
+
+	"github.com/yanmengfei/whois"
 )
 
 // Query 在线查询whois信息
@@ -33,13 +34,13 @@ func Parser(document string) (*WhoisInfo, error) {
 	var s = rx.FindAllStringSubmatch(document, -1)
 	if len(s) >= 1 {
 		var source = s[0][1]
-		var data = WhoisInfo{Source: source, Server: serverRule[source]}
+		var data = NewWhoisInfo(source, serverRule[source])
 		var parser = parserRule[source]
 		var sc = bufio.NewScanner(strings.NewReader(document))
 		for sc.Scan() {
-			parser(sc.Text(), &data)
+			parser(sc.Text(), data)
 		}
-		return &data, nil
+		return data, nil
 	}
 	return nil, errors.New("invalid ip whois document")
 }
