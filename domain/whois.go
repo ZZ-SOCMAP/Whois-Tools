@@ -35,7 +35,7 @@ func Parser(document string) (*WhoisInfo, error) {
 	if name == "" {
 		return nil, errors.New("invalid domain whois document")
 	}
-	var data WhoisInfo
+	var data = NewWhoisInfo()
 	whoisText, _ := prepare(document, extension)
 	whoisLines := strings.Split(whoisText, "\n")
 	for i := 0; i < len(whoisLines); i++ {
@@ -61,7 +61,8 @@ func Parser(document string) (*WhoisInfo, error) {
 		}
 
 		lines := strings.SplitN(line, ":", 2)
-		name := strings.TrimSpace(lines[0])
+		// field
+		field := strings.TrimSpace(lines[0])
 		value := strings.TrimSpace(lines[1])
 		value = strings.TrimSpace(strings.Trim(value, ":"))
 
@@ -69,9 +70,10 @@ func Parser(document string) (*WhoisInfo, error) {
 			continue
 		}
 
-		keyName := searchKeyName(name)
+		keyName := searchKeyName(field)
 		switch keyName {
-
+		case "domain_name":
+			data.Domain = strings.ToLower(value)
 		case "domain_status":
 			data.Status = append(data.Status, strings.Split(value, ",")...)
 		case "domain_dnssec":
@@ -97,18 +99,18 @@ func Parser(document string) (*WhoisInfo, error) {
 				data.Expiry = value
 			}
 		default:
-			name = clearKeyName(name)
-			if !strings.Contains(name, " ") {
-				name += " name"
+			field = clearKeyName(field)
+			if !strings.Contains(field, " ") {
+				field += " name"
 			}
-			ns := strings.SplitN(name, " ", 2)
-			name = strings.TrimSpace("registrant " + ns[1])
+			ns := strings.SplitN(field, " ", 2)
+			field = strings.TrimSpace("registrant " + ns[1])
 			if ns[0] == "registrar" || ns[0] == "registration" {
-				parseContact(&data.Registrar, name, value)
+				parseContact(&data.Registrar, field, value)
 			} else if ns[0] == "registrant" || ns[0] == "holder" {
-				parseContact(&data.Registrant, name, value)
+				parseContact(&data.Registrant, field, value)
 			} else if ns[0] == "admin" || ns[0] == "administrative" {
-				parseContact(&data.Administrative, name, value)
+				parseContact(&data.Administrative, field, value)
 			}
 		}
 	}
@@ -116,7 +118,7 @@ func Parser(document string) (*WhoisInfo, error) {
 	data.Status = fixDomainStatus(data.Status)
 	data.NameServer = xslice.Unique(data.NameServer).([]string)
 	data.Status = xslice.Unique(data.Status).([]string)
-	return &data, nil
+	return data, nil
 }
 
 // parseContact do parse contact info

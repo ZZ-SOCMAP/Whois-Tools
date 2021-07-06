@@ -18,7 +18,7 @@ type QueryOptions struct {
 	Server string
 }
 
-// connectWhoisServer get document from whois server
+// ConnectWhoisServer get document from whois server
 func ConnectWhoisServer(options *QueryOptions) (document string, err error) {
 	if options.Server == "whois.arin.net" {
 		options.Key = "n + " + options.Key // 域名: 加拿大、北美地区
@@ -40,7 +40,7 @@ func ConnectWhoisServer(options *QueryOptions) (document string, err error) {
 	return string(buffer[:]), err
 }
 
-// getRefer get whois server from document
+// GetRefer get whois server from document
 func GetRefer(document string) (refer string) {
 	tokens := []string{"whois: ", "Registrar WHOIS Server: ", "refer: "}
 	for i := 0; i < 2; i++ {
