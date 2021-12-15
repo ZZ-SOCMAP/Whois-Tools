@@ -23,15 +23,15 @@ func ConnectWhoisServer(options *QueryOptions) (document string, err error) {
 	if options.Server == "whois.arin.net" {
 		options.Key = "n + " + options.Key // 域名: 加拿大、北美地区
 	}
-	connect, err := net.DialTimeout("tcp", net.JoinHostPort(options.Server, DefaultWhoisPort), time.Second*30)
+	connect, err := net.DialTimeout("tcp", net.JoinHostPort(options.Server, DefaultWhoisPort), time.Second*100)
 	if err != nil {
 		return document, fmt.Errorf("core: connect to core server failed: %v", err)
 	}
-	_ = connect.SetWriteDeadline(time.Now().Add(time.Second * 30))
+	_ = connect.SetWriteDeadline(time.Now().Add(time.Second * 100))
 	if _, err = connect.Write([]byte(options.Key + "\r\n")); err != nil {
 		return document, fmt.Errorf("core: send to core server failed: %v", err)
 	}
-	_ = connect.SetReadDeadline(time.Now().Add(time.Second * 30))
+	_ = connect.SetReadDeadline(time.Now().Add(time.Second * 100))
 	buffer, err := ioutil.ReadAll(connect)
 	if err != nil {
 		return document, fmt.Errorf("core: read from core server failed: %v", err)
